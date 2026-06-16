@@ -1,5 +1,5 @@
 {
-
+  "outputDirectory": "dist/syncin-app/browser",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
