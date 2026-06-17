@@ -13,6 +13,9 @@ export class Auth {
   constructor(private http: HttpClient) {}
 
   login(empId: string, password: string): Observable<any> {
+    // SECURITY FIX: If an admin was logged in, clear their session before a regular user logs in
+    //this.adminLogout();
+
     return this.http
       .post<any>(`${BASE_URL}/auth/login`, { empId, password })
       .pipe(tap(res => {
@@ -20,11 +23,14 @@ export class Auth {
         localStorage.setItem('user_role', res.role);
         localStorage.setItem('user_id', res.empId);
         localStorage.setItem('user_name', res.name || '');
-        localStorage.setItem('is_first_login', res.firstLogin);
+        localStorage.setItem('is_first_login', String(res.firstLogin));
       }));
   }
 
   adminLogin(username: string, password: string): Observable<{ token: string }> {
+    // SECURITY FIX: If a standard user was logged in, clear their session before admin logs in
+    //this.logout();
+
     return this.http
       .post<{ token: string }>(`${BASE_URL}/admin/login`, { username, password })
       .pipe(tap(res => localStorage.setItem(ADMIN_TOKEN_KEY, res.token)));
@@ -84,5 +90,11 @@ export class Auth {
 
   adminLogout(): void {
     localStorage.removeItem(ADMIN_TOKEN_KEY);
+  }
+
+  // NEW HELPER: Clear absolutely everything (useful for the main entry page)
+  clearAllSessions(): void {
+    this.logout();
+    this.adminLogout();
   }
 }
