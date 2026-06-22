@@ -54,6 +54,23 @@ public class AdminController {
             return ResponseEntity.status(403).body(Map.of("error", "Forbidden"));
         }
 
+        // --- NEW CHECK ---
+        // Check if the user already exists by Employee ID to prevent overwriting
+        if (userRepository.existsByEmpId(request.getEmpId())) {
+            return ResponseEntity.status(409).body(Map.of(
+                    "error", "Conflict",
+                    "message", "A user with Employee ID " + request.getEmpId() + " already exists."
+            ));
+        }
+
+        // Optional: You might also want to check if the email is already in use
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.status(409).body(Map.of(
+                    "error", "Conflict",
+                    "message", "A user with this email already exists."
+            ));
+        }
+
         User user = new User();
         user.setEmpId(request.getEmpId());
         user.setName(request.getName());

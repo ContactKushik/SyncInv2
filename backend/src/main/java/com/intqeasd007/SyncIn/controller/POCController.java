@@ -84,7 +84,6 @@ public class POCController {
     }
 
     // ───────────── ONBOARD INTERN ─────────────
-
     @PostMapping("/interns")
     public ResponseEntity<?> onboardIntern(HttpServletRequest req,
                                            @RequestBody OnboardInternRequest body) {
@@ -96,6 +95,22 @@ public class POCController {
         if (cohort == null || !cohort.getPocEmpId().equals(pocEmpId)) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid cohort"));
         }
+
+        // --- NEW CHECK: Prevent overwriting/duplicates ---
+        if (userRepository.existsByEmpId(body.getEmpId())) {
+            return ResponseEntity.status(409).body(Map.of(
+                    "error", "Conflict",
+                    "message", "An intern with Employee ID " + body.getEmpId() + " already exists."
+            ));
+        }
+
+        if (userRepository.existsByEmail(body.getEmail())) {
+            return ResponseEntity.status(409).body(Map.of(
+                    "error", "Conflict",
+                    "message", "An intern with this email already exists."
+            ));
+        }
+        // -------------------------------------------------
 
         // Generate random 8-char temp password
         String plainTextPassword = generateTempPassword(8);
@@ -122,7 +137,6 @@ public class POCController {
         resp.put("tempPassword", plainTextPassword);
         return ResponseEntity.ok(resp);
     }
-
     // ───────────── GET INTERNS BY COHORT ─────────────
 
     @GetMapping("/cohorts/{batchCode}/interns")

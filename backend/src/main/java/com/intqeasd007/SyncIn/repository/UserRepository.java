@@ -6,6 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, String> {
+    // Spring Boot automatically implements this to check for existence
+    boolean existsByEmpId(String empId);
+
+    // Optional, but highly recommended if emails must be unique
+    boolean existsByEmail(String email);
     List<User> findByCohort_BatchCode(String batchCode);
     // Find users by their Role enum
     List<User> findByRole(Role role);
