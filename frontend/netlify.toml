@@ -1,5 +1,5 @@
 [build]
-publish = "dist/sras-ui/browser"
+publish = "dist/syncin-app/browser"
 
 [[redirects]]
 from = "/*"
